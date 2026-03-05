@@ -5,114 +5,74 @@ namespace PhoneBook.Ruksan12.Services
 {
     public class PhoneService
     {
-        private readonly PhoneBookContext _context;
+        private readonly PhoneBookContext _db;
         public PhoneService(PhoneBookContext context)
         {
-            _context = context;
+            _db = context;
         }
-        public void AddContact()
+        public void AddContact(Contact contact)
         {
-            Console.Write("Enter Name: ");
-            var name = Console.ReadLine();
-            Console.Write("Enter Phone Number:");
-            var phoneNumber = Console.ReadLine();
-            if(!ContactValidator.IsValidPhoneNumber(phoneNumber))
+            try
             {
-                Console.WriteLine("Invalid phone number. Must be 7-15 digits");
-                return;
+                _db.Contacts.Add(contact);
+                _db.SaveChanges();
             }
-            Console.Write("Enter Email: ");
-            var email = Console.ReadLine();
-            if (!ContactValidator.IsValidEmail(email))
+            catch(Exception ex)
             {
-                Console.WriteLine("Invalid email address.");
-                return;
-            }
-            var contact = new Contact
-            {
-                Name = name,
-                PhoneNumber = phoneNumber,
-                Email = email
-            };
-            _context.Contacts.Add(contact);
-            _context.SaveChanges();
-            Console.WriteLine("Contact added successfully!");
-        }
-
-        public void ViewContacts()
-        {
-            var contacts = _context.Contacts.ToList();
-            Console.WriteLine("Contacts:");
-            foreach (var contact in contacts)
-            {
-                Console.WriteLine($"ID: {contact.Id}, Name: {contact.Name}, Phone: {contact.PhoneNumber}, Email: {contact.Email}");
+                Console.WriteLine($"Error adding contact: {ex.Message}");
             }
         }
 
-        public void EditContact()
+        public List<Contact> ViewContacts()
         {
-            Console.Write("Enter Contact ID to edit: ");
-            if (int.TryParse(Console.ReadLine(), out int id))
+            try
             {
-                var contact = _context.Contacts.Find(id);
-                if (contact != null)
-                {
-                    Console.Write("Enter new Name (leave blank to keep current): ");
-                    var name = Console.ReadLine();
-                    Console.Write("Enter new Phone Number (leave blank to keep current): ");
-                    var phoneNumber = Console.ReadLine();
-                    if (!string.IsNullOrEmpty(phoneNumber) && !ContactValidator.IsValidPhoneNumber(phoneNumber))
-                    {
-                        Console.WriteLine("Invalid phone number. Must be 7-15 digits.");
-                        return;
-                    }
-                    Console.Write("Enter new Email (leave blank to keep current): ");
-                    var email = Console.ReadLine();
-                    if (!string.IsNullOrEmpty(email) && !ContactValidator.IsValidEmail(email))
-                    {
-                        Console.WriteLine("Invalid email address.");
-                        return;
-                    }
-                    if (!string.IsNullOrEmpty(name)) contact.Name = name;
-                    if (!string.IsNullOrEmpty(phoneNumber)) contact.PhoneNumber = phoneNumber;
-                    if (!string.IsNullOrEmpty(email)) contact.Email = email;
-                    _context.SaveChanges();
-                    Console.WriteLine("Contact updated successfully!");
-                }
-                else
-                {
-                    Console.WriteLine("Contact not found.");
-                }
+                return _db.Contacts.ToList();
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Invalid ID.");
+                Console.WriteLine($"Error retrieving contacts: {ex.Message}");
+                return new List<Contact>();
             }
         }
 
-        public void DeleteContact()
+        public Contact? GetContactById(int id)
         {
-            Console.Write("Enter Contact ID to delete: ");
-            if (int.TryParse(Console.ReadLine(), out int id))
+            try
             {
-                var contact = _context.Contacts.Find(id);
-                if (contact != null)
-                {
-                    _context.Contacts.Remove(contact);
-                    _context.SaveChanges();
-                    Console.WriteLine("Contact deleted successfully!");
-                }
-                else
-                {
-                    Console.WriteLine("Contact not found.");
-                }
+                return _db.Contacts.Find(id);
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Invalid ID.");
+                Console.WriteLine($"Error retrieving contact: {ex.Message}");
+                return null;
             }
+        }
+
+        public void UpdateContact(Contact contact)
+        {
+            try
+            {
+                _db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating contact: {ex.Message}");
+            }
+        }
 
 
+        public void DeleteContact(Contact contact)
+        {
+            try
+            {
+                _db.Contacts.Remove(contact);
+                _db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting contact: {ex.Message}");
+            }
         }
     }
 }
