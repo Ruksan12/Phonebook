@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="../Phonebook.Tests/Phonebook.Tests.csproj" Id="9975b2db-49ba-4143-bba7-24b5f14b8e0b" />
   <Project Path="PhoneBook.Ruksan12.csproj" />
+  <Project Path="Phonebook.Tests/Phonebook.Tests.csproj" />
 </Solution>
